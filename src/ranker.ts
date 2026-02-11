@@ -2,6 +2,7 @@ import type {
   CandidateArticle,
   FeedbackEvent,
   RankerWeights,
+  RankedArticle,
   UserContext,
 } from "./types.js";
 
@@ -13,12 +14,6 @@ export const DEFAULT_WEIGHTS: RankerWeights = {
   hasCode: 1.1,
   hasBenchmarks: 0.9,
 };
-
-export interface RankedArticle {
-  article: CandidateArticle;
-  score: number;
-  reasons: string[];
-}
 
 export class LightweightRanker {
   private weights: RankerWeights;

@@ -17,6 +17,7 @@
   <a href="#system-design">System Design</a> ·
   <a href="#training-loop-feedback--learning">Training Loop</a> ·
   <a href="#rag-export-contract">RAG Export</a> ·
+  <a href="#mock-ingestion--digest">Mock Ingestion</a> ·
   <a href="#quick-start">Quick Start</a>
 </p>
 
@@ -140,6 +141,28 @@ Second Brain Agent should export selected items in a stable format:
 
 Downstream systems can query by semantic similarity + metadata filters.
 
+## Mock Ingestion + Digest
+
+This repo currently includes mock ingestion for X and Brave, plus a pipeline that:
+
+- Collects mock candidates
+- Ranks them with the lightweight ranker
+- Buckets them into `read_now`, `save`, `background`, `ignore`
+- Persists pipeline state to `data/second-brain-state.json`
+
+Example usage:
+
+```ts
+import { runPipeline } from "./src/pipeline.js";
+
+const result = runPipeline({
+  context: { focusTopics: ["rag", "evals"], preferredDepth: 0.7 },
+  useMockSources: true,
+});
+
+console.log(result.digest.read_now.map((item) => item.article.title));
+```
+
 ## Quick Start
 
 ```bash
@@ -152,11 +175,15 @@ pnpm build
 
 - `src/ranker.ts` — core lightweight ranker and feedback adaptation
 - `src/types.ts` — data contracts for candidates, context, feedback, weights
+- `src/pipeline.ts` — mock ingestion → ranking → digest bucketing → persistence
+- `src/ingestion/mockSources.ts` — mock X + Brave sources
+- `src/storage/fileStore.ts` — JSON file persistence
 - `test/ranker.test.ts` — ranking and adaptation tests
+- `test/pipeline.test.ts` — ingestion + bucketing + persistence tests
 
 ## Next Implementation Targets
 
-1. Source adapters: X, Brave, RSS.
+1. Real source adapters: X, Brave, RSS.
 2. Vector layer: pgvector/LanceDB/Qdrant adapter.
 3. Digest API + UI feedback surface.
 4. Bandit exploration policy for discovery vs exploitation.
